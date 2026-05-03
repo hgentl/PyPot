@@ -2,7 +2,7 @@ from flask import Flask, request
 from honeypot.logger import log_request
 from datetime import datetime
 
-app = Fask(__name__)
+app = Flask(__name__)
 
 # Fake endpoints
 ROUTES = [
