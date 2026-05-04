@@ -1,28 +1,50 @@
-from flask import Flask, request
-from honeypot.logger import log_request
-from datetime import datetime
+from flask import Flask, request, Response
+from honeypot.logger import log_request, log_credentials, print_summary
+import atexit
 
 app = Flask(__name__)
 
-# Fake endpoints
-ROUTES = [
-    "/",
-    "/admin",
-    "/login",
-    "/wp-admin",
-    "/dashboard",
-    "/config",
-]
+atexit.register(print_summary)
 
-def handle_request():
+
+
+@app.route("/")
+def home():
     log_request(request)
     return "OK", 200
 
-# Register all routes dynamically
-for route in ROUTES:
-    app.add_url_rule(route, route, handle_request, methods = ["GET", "POST"])
+@app.route("/admin")
+@app.route("/wp-admin")
+@app.route("/dashboard")
+@app.route("/config")
+def trap_routes():
+    log_request(request)
+    return "Not Found", 404
 
-@app.route("/<path:anything>", methods = ["GET", "POST"])
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    log_request(request)
+
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        log_credentials(username, password, request.remote_addr)
+    
+    return Response("""
+        <html>
+            <body>
+                <h2>Login</h2>
+                <form method="POST">
+                    <input name="username" placeholder="Username"><br>
+                    <input name="password" type="password" placeholder="Password"><br>
+                    <button type="submit">Login</button>
+                </form>
+            </body>
+        </html>  
+        """, mimetype="text/html")
+
+@app.route("/<path:anything>", methods=["GET", "POST"])
 def catch_all(anything):
     log_request(request)
     return "Not Found", 404
