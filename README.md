@@ -125,6 +125,7 @@ honeypot/
 ├── honeypot/
 │   └── logger.py
 ├── tests/
+├── logs/              # runtime logs (gitignored)
 └── README.md
 ```
 
