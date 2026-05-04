@@ -2,9 +2,17 @@ from datetime import datetime
 from collections import defaultdict
 
 LOG_FILE = "logs/requests.log"
+CRED_FILE = "logs/credentials.log"
 
 # Track requests per IP
 request_count = defaultdict(list)
+
+ip_stats = defaultdict(lambda: {
+    "count": 0,
+    "paths": set(),
+    "flags": set()
+})
+
 
 # suspicious indicators
 SUSPICIOUS_PATHS = ["admin", "wp-admin", "config", "login"]
@@ -12,6 +20,7 @@ SUSPICIOUS_AGENTS = ["curl", "python", "wget"]
 
 TIME_WINDOW = 10
 REQUST_LIMIT = 5
+
 
 def is_suspicious(ip, path, user_agent):
     reasons = []
@@ -46,13 +55,20 @@ def log_request(request):
     path = request.path
     user_agent = request.headers.get("User-Agent", "Unknown")
 
-    # check this
     timestamp = datetime.now().strftime("%d-%m-%y %H:%M:%S")
 
     reasons = is_suspicious(ip, path, user_agent)
 
-    tag = "[SUSPICIOUS]" if reasons else "[INFO]"
+    stats = ip_stats[ip]
+    stats["count"] += 1
+    stats["paths"].add(path)
 
+    for reason in reasons:
+        stats["flags"].add(reason)
+    
+
+    tag = "[SUSPICIOUS]" if reasons else "[INFO]"
+    
     log_entry = (
         f"[{timestamp}] {ip} {method} {path} "
         f'User-Agent="{user_agent}"\n'
@@ -67,3 +83,28 @@ def log_request(request):
         f.write(log_entry)
     
     print(log_entry.strip())
+
+def log_credentials(username, password, ip):
+    entry = f"{ip} username={username} password={password}\n"
+
+    with open(CRED_FILE, "a") as f:
+        f.write(entry)
+    
+    print(f"[CREDENTIAS] {entry.strip()}")
+
+def print_summary():
+    print("\n--- Summary ---")
+
+    if not ip_stats:
+        print("No activity recorded.")
+        return
+    
+    for ip, data in ip_stats.items():
+        print(f"\nIP: {ip}")
+        print(f"Requests: {data['count']}")
+        print(f"Endpoints: {', '.join(data['paths'])}")
+
+        if data["flags"]:
+            print("Flags:")
+            for f in data["flags"]:
+                print(f"- {f}")
