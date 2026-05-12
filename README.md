@@ -1,6 +1,6 @@
-# Minimal Web Honeypot (Python)
+# PyPot
 
-A lightweight web honeypot designed to simulate common attack targets and observe real-world probing behaviour on HTTP services.
+PyPot is a simple, lightweight web honeypot designed to simulate common attack targets and observe real-world probing behaviour on HTTP services.
 
 ---
 
