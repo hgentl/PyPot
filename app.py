@@ -6,8 +6,6 @@ app = Flask(__name__)
 
 atexit.register(print_summary)
 
-
-
 @app.route("/")
 def home():
     log_request(request)
