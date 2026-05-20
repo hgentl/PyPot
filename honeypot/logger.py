@@ -13,14 +13,12 @@ ip_stats = defaultdict(lambda: {
     "flags": set()
 })
 
-
 # suspicious indicators
 SUSPICIOUS_PATHS = ["admin", "wp-admin", "config", "login"]
 SUSPICIOUS_AGENTS = ["curl", "python", "wget"]
 
 TIME_WINDOW = 10
 REQUST_LIMIT = 5
-
 
 def is_suspicious(ip, path, user_agent):
     reasons = []
@@ -66,7 +64,6 @@ def log_request(request):
     for reason in reasons:
         stats["flags"].add(reason)
     
-
     tag = "[SUSPICIOUS]" if reasons else "[INFO]"
     
     log_entry = (
