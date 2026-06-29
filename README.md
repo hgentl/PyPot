@@ -185,7 +185,7 @@ This project is for educational purposes only. It is not intended to be deployed
 
 ---
 
-## Future Improvements (Optional)
+## Future Improvements
 
 * persistent storage for logs
 * IP reputation / enrichment
